@@ -78,13 +78,13 @@ public class ControladorUsuario {
             errores.put("email", "El correo ya está registrado");
         }
 
-        // Si hay errores, los devolvemos como texto simple
+        // Si hay errores, los devolvemos con un código 200 OK, pero con los mensajes de error
         if (!errores.isEmpty()) {
             StringBuilder errorMessages = new StringBuilder();
             for (Map.Entry<String, String> entry : errores.entrySet()) {
                 errorMessages.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
             }
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessages.toString());
+            return ResponseEntity.status(HttpStatus.OK).body(errorMessages.toString());  // Cambié el código de estado a 200 OK
         }
 
         // Tipo de usuario por defecto
@@ -96,7 +96,7 @@ public class ControladorUsuario {
         usuario.setContrasena(Encriptador.encriptar(usuario.getContrasena()));
         repositorioUsuario.save(usuario);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado correctamente como " + usuario.getTipoUsuario());
+        return ResponseEntity.status(HttpStatus.OK).body("Usuario registrado correctamente como " + usuario.getTipoUsuario());  // Devolvemos con código 200 OK
     }
 
     @DeleteMapping("/{id}")
