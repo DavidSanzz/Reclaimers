@@ -5,17 +5,35 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "usuarios")
 public class Usuario {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+
+    @Id // Indica que este campo es la clave primaria
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Generación automática del ID
+    private Long id; // Clave primaria
 
     private String nombre;
     private String email;
     private String contrasena;
 
-    // Campo para diferenciar el tipo de usuario
     @Enumerated(EnumType.STRING)
     private TipoUsuario tipoUsuario;
+
+    // Constructor sin parámetros (no-arg constructor) requerido por Spring y JPA
+    public Usuario() {
+    }
+
+    // Constructor con 4 parámetros (para registro)
+    public Usuario(String nombre, String email, String contrasena, TipoUsuario tipoUsuario) {
+        this.nombre = nombre;
+        this.email = email;
+        this.contrasena = contrasena;
+        this.tipoUsuario = tipoUsuario;
+    }
+
+    // Constructor con 2 parámetros (para login)
+    public Usuario(String email, String contrasena) {
+        this.email = email;
+        this.contrasena = contrasena;
+    }
 
     // Getters y Setters
     public Long getId() { return id; }
@@ -33,7 +51,6 @@ public class Usuario {
     public TipoUsuario getTipoUsuario() { return tipoUsuario; }
     public void setTipoUsuario(TipoUsuario tipoUsuario) { this.tipoUsuario = tipoUsuario; }
 
-    // Enum para los tipos de usuario
     public enum TipoUsuario {
         LUDOPATA, PROFESIONAL
     }
