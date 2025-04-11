@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -15,56 +17,95 @@ public class ControladorUsuario {
 
     private final RepositorioUsuario repositorioUsuario;
 
-    // Inyección por constructor
     @Autowired
     public ControladorUsuario(RepositorioUsuario repositorioUsuario) {
         this.repositorioUsuario = repositorioUsuario;
     }
 
-    // Obtener todos los usuarios
     @GetMapping
     public List<Usuario> obtenerUsuarios() {
         return repositorioUsuario.findAll();
     }
 
-    // Crear un nuevo usuario
-    @PostMapping
-    public ResponseEntity<Usuario> crearUsuario(@RequestBody Usuario usuario) {
-        // Verificar si el correo ya está registrado
-        if (repositorioUsuario.existsByEmail(usuario.getEmail())) {
-            // Si el correo ya existe, devolver un error 400 Bad Request
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, Object>> login(@RequestBody Usuario usuario) {
+        Usuario usuarioExistente = repositorioUsuario.findByEmail(usuario.getEmail());
+        Map<String, Object> response = new HashMap<>();
+
+        if (usuarioExistente == null) {
+            response.put("status", "error");
+            response.put("message", "Correo incorrecto");
+            return ResponseEntity.ok(response);
         }
 
-        // Asignar un tipo de usuario por defecto si no se recibe uno desde el frontend
-        if (usuario.getTipoUsuario() == null) {
-            usuario.setTipoUsuario(Usuario.TipoUsuario.LUDOPATA);  // Por defecto, asignamos LUDOPATA
+        // Verificar contraseña encriptada
+        boolean coincide = Encriptador.verificar(usuario.getContrasena(), usuarioExistente.getContrasena());
+
+        if (!coincide) {
+            response.put("status", "error");
+            response.put("message", "Contraseña incorrecta");
+            return ResponseEntity.ok(response);
         }
 
-        // Guardar el nuevo usuario
-        Usuario nuevoUsuario = repositorioUsuario.save(usuario);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoUsuario);
+        response.put("status", "success");
+        response.put("message", "Login exitoso");
+        response.put("tipoUsuario", usuarioExistente.getTipoUsuario().name());
+
+        return ResponseEntity.ok(response);
     }
 
-    // Iniciar sesión
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Usuario usuario) {
-        // Verificar si el usuario existe
-        Usuario usuarioExistente = repositorioUsuario.findByEmail(usuario.getEmail());
-        if (usuarioExistente == null) {
+    @PostMapping
+    public ResponseEntity<String> crearUsuario(@RequestBody Usuario usuario) {
+        Map<String, String> errores = new HashMap<>();
+
+        // Validar nombre vacío
+        if (usuario.getNombre() == null || usuario.getNombre().trim().isEmpty()) {
+            errores.put("nombre", "El nombre no puede estar vacío");
+        }
+
+        // Validar email vacío o sin formato
+        if (usuario.getEmail() == null || !usuario.getEmail().matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+            errores.put("email", "El email no es válido");
+        }
+
+        // Validar contraseña vacía o muy corta
+        if (usuario.getContrasena() == null || usuario.getContrasena().length() < 6) {
+            errores.put("contrasena", "La contraseña debe tener al menos 6 caracteres");
+        }
+
+        // Validar correo repetido
+        if (repositorioUsuario.findByEmail(usuario.getEmail()) != null) {
+            errores.put("email", "El correo ya está registrado");
+        }
+
+        // Si hay errores, los devolvemos como texto simple
+        if (!errores.isEmpty()) {
+            StringBuilder errorMessages = new StringBuilder();
+            for (Map.Entry<String, String> entry : errores.entrySet()) {
+                errorMessages.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessages.toString());
+        }
+
+        // Tipo de usuario por defecto
+        if (usuario.getTipoUsuario() == null) {
+            usuario.setTipoUsuario(Usuario.TipoUsuario.LUDOPATA);
+        }
+
+        // Encriptar y guardar
+        usuario.setContrasena(Encriptador.encriptar(usuario.getContrasena()));
+        repositorioUsuario.save(usuario);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado correctamente como " + usuario.getTipoUsuario());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> eliminarUsuario(@PathVariable Long id) {
+        if (!repositorioUsuario.existsById(id)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
         }
 
-        // Verificar si la contraseña es correcta
-        if (!usuarioExistente.getContrasena().equals(usuario.getContrasena())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Contraseña incorrecta");
-        }
-
-        // Aquí podemos devolver un mensaje personalizado según el tipo de usuario
-        if (usuarioExistente.getTipoUsuario() == Usuario.TipoUsuario.LUDOPATA) {
-            return ResponseEntity.status(HttpStatus.OK).body("Inicio de sesión exitoso como Ludópata");
-        } else {
-            return ResponseEntity.status(HttpStatus.OK).body("Inicio de sesión exitoso como Profesional");
-        }
+        repositorioUsuario.deleteById(id);
+        return ResponseEntity.ok("Usuario eliminado correctamente");
     }
 }
