@@ -8,6 +8,14 @@ public class Usuario {
     private String contrasena;
     private TipoUsuario tipoUsuario;
 
+    // CAMPOS ADICIONALES RELACIONADOS CON LA LUDOPATÍA
+    private String tipoJuegoFavorito;
+    private String horarioFrecuenteJuego;
+    private Integer tiempoSemanalJuego;
+    private Double dineroGastadoMensual;
+    private NivelAutoevaluacion nivelAutoevaluacion;
+    private String objetivoPersonal;
+
     // Constructor vacío requerido por Jackson
     public Usuario() {}
 
@@ -26,7 +34,6 @@ public class Usuario {
     }
 
     // Getters y setters
-
     public Long getId() {
         return id;
     }
@@ -67,8 +74,62 @@ public class Usuario {
         this.tipoUsuario = tipoUsuario;
     }
 
+    public String getTipoJuegoFavorito() {
+        return tipoJuegoFavorito;
+    }
+
+    public void setTipoJuegoFavorito(String tipoJuegoFavorito) {
+        this.tipoJuegoFavorito = tipoJuegoFavorito;
+    }
+
+    public String getHorarioFrecuenteJuego() {
+        return horarioFrecuenteJuego;
+    }
+
+    public void setHorarioFrecuenteJuego(String horarioFrecuenteJuego) {
+        this.horarioFrecuenteJuego = horarioFrecuenteJuego;
+    }
+
+    public Integer getTiempoSemanalJuego() {
+        return tiempoSemanalJuego;
+    }
+
+    public void setTiempoSemanalJuego(Integer tiempoSemanalJuego) {
+        this.tiempoSemanalJuego = tiempoSemanalJuego;
+    }
+
+    public Double getDineroGastadoMensual() {
+        return dineroGastadoMensual;
+    }
+
+    public void setDineroGastadoMensual(Double dineroGastadoMensual) {
+        this.dineroGastadoMensual = dineroGastadoMensual;
+    }
+
+    public NivelAutoevaluacion getNivelAutoevaluacion() {
+        return nivelAutoevaluacion;
+    }
+
+    public void setNivelAutoevaluacion(NivelAutoevaluacion nivelAutoevaluacion) {
+        this.nivelAutoevaluacion = nivelAutoevaluacion;
+    }
+
+    public String getObjetivoPersonal() {
+        return objetivoPersonal;
+    }
+
+    public void setObjetivoPersonal(String objetivoPersonal) {
+        this.objetivoPersonal = objetivoPersonal;
+    }
+
     public enum TipoUsuario {
         LUDOPATA,
         PROFESIONAL
+    }
+
+    public enum NivelAutoevaluacion {
+        BAJO,
+        MEDIO,
+        ALTO
     }
 }

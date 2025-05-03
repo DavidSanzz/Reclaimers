@@ -6,9 +6,9 @@ import jakarta.persistence.*;
 @Table(name = "usuarios")
 public class Usuario {
 
-    @Id // Indica que este campo es la clave primaria
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Generación automática del ID
-    private Long id; // Clave primaria
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String nombre;
     private String email;
@@ -16,6 +16,17 @@ public class Usuario {
 
     @Enumerated(EnumType.STRING)
     private TipoUsuario tipoUsuario;
+
+    // CAMPOS ADICIONALES RELACIONADOS CON LA LUDOPATÍA
+    private String tipoJuegoFavorito;         // Tipo de juego preferido por el usuario
+    private String horarioFrecuenteJuego;     // Horarios habituales de juego
+    private Integer tiempoSemanalJuego;       // Tiempo semanal de juego (en horas)
+    private Double dineroGastadoMensual;      // Dinero gastado al mes (en euros)
+
+    @Enumerated(EnumType.STRING)
+    private NivelAutoevaluacion nivelAutoevaluacion;  // Nivel de autoevaluación del usuario
+
+    private String objetivoPersonal;          // Objetivo personal redactado por el usuario
 
     // Constructor sin parámetros (no-arg constructor) requerido por Spring y JPA
     public Usuario() {
@@ -51,7 +62,34 @@ public class Usuario {
     public TipoUsuario getTipoUsuario() { return tipoUsuario; }
     public void setTipoUsuario(TipoUsuario tipoUsuario) { this.tipoUsuario = tipoUsuario; }
 
+    public String getTipoJuegoFavorito() { return tipoJuegoFavorito; }
+    public void setTipoJuegoFavorito(String tipoJuegoFavorito) { this.tipoJuegoFavorito = tipoJuegoFavorito; }
+
+    public String getHorarioFrecuenteJuego() { return horarioFrecuenteJuego; }
+    public void setHorarioFrecuenteJuego(String horarioFrecuenteJuego) { this.horarioFrecuenteJuego = horarioFrecuenteJuego; }
+
+    public Integer getTiempoSemanalJuego() { return tiempoSemanalJuego; }
+    public void setTiempoSemanalJuego(Integer tiempoSemanalJuego) { this.tiempoSemanalJuego = tiempoSemanalJuego; }
+
+    public Double getDineroGastadoMensual() { return dineroGastadoMensual; }
+    public void setDineroGastadoMensual(Double dineroGastadoMensual) { this.dineroGastadoMensual = dineroGastadoMensual; }
+
+    public NivelAutoevaluacion getNivelAutoevaluacion() { return nivelAutoevaluacion; }
+    public void setNivelAutoevaluacion(NivelAutoevaluacion nivelAutoevaluacion) { this.nivelAutoevaluacion = nivelAutoevaluacion; }
+
+    public String getObjetivoPersonal() { return objetivoPersonal; }
+    public void setObjetivoPersonal(String objetivoPersonal) { this.objetivoPersonal = objetivoPersonal; }
+
+    // Enum para distinguir el tipo de usuario
     public enum TipoUsuario {
-        LUDOPATA, PROFESIONAL
+        LUDOPATA,
+        PROFESIONAL
+    }
+
+    // Enum para representar el nivel de autoevaluación
+    public enum NivelAutoevaluacion {
+        BAJO,
+        MEDIO,
+        ALTO
     }
 }
