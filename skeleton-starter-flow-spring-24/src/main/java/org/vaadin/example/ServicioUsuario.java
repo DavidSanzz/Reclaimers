@@ -119,4 +119,16 @@ public class ServicioUsuario {
         return new ArrayList<>();
     }
 
+    // NUEVO: Método para actualizar los campos adicionales del usuario
+    public String actualizarInformacionAdicional(Long id, Usuario usuario) {
+        String url = BASE_URL + "/" + id + "/informacion-adicional";
+
+        try {
+            restTemplate.put(url, usuario);
+            return "Información actualizada correctamente";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error al actualizar la información";
+        }
+    }
 }
