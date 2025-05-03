@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpSession;
+
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,30 +30,34 @@ public class ControladorUsuario {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody Usuario usuario) {
+    public ResponseEntity<Usuario> login(@RequestBody Usuario usuario, HttpSession session) {
         Usuario usuarioExistente = repositorioUsuario.findByEmail(usuario.getEmail());
-        Map<String, Object> response = new HashMap<>();
 
         if (usuarioExistente == null) {
-            response.put("status", "error");
-            response.put("message", "Correo incorrecto");
-            return ResponseEntity.ok(response);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        // Verificar contraseña encriptada
         boolean coincide = Encriptador.verificar(usuario.getContrasena(), usuarioExistente.getContrasena());
 
         if (!coincide) {
-            response.put("status", "error");
-            response.put("message", "Contraseña incorrecta");
-            return ResponseEntity.ok(response);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        response.put("status", "success");
-        response.put("message", "Login exitoso");
-        response.put("tipoUsuario", usuarioExistente.getTipoUsuario().name());
+        session.setAttribute("usuarioId", usuarioExistente.getId());
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(usuarioExistente);
+    }
+
+
+    // Método para obtener el usuario actual
+    @GetMapping("/usuarioActual")
+    public ResponseEntity<Usuario> getUsuarioActual(HttpSession session) {
+        Long usuarioId = (Long) session.getAttribute("usuarioId");
+        if (usuarioId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();  // Si no hay usuario en la sesión
+        }
+        Usuario usuario = repositorioUsuario.findById(usuarioId).orElse(null);
+        return ResponseEntity.ok(usuario);
     }
 
     @PostMapping
