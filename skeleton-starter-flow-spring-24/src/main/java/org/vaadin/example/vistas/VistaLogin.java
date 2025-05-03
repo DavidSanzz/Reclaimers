@@ -8,8 +8,11 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.component.html.H1;
-import java.util.Map;
+import com.vaadin.flow.component.UI;
+
 import org.vaadin.example.ServicioUsuario;
+import org.vaadin.example.UsuarioSesion;
+import org.vaadin.example.models.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Route("inicio-sesion")
@@ -31,20 +34,18 @@ public class VistaLogin extends VerticalLayout {
             String email = emailField.getValue();
             String password = passwordField.getValue();
 
-            // Verificar si los campos están vacíos
             if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-                // Verificar si uno o ambos campos están vacíos y mostrar el error correspondiente
                 if (email.trim().isEmpty() && password.trim().isEmpty()) {
                     Notification.show("El correo y la contraseña no pueden estar vacíos", 3000, Notification.Position.MIDDLE);
                 } else if (email.trim().isEmpty()) {
                     Notification.show("El correo no puede estar vacío", 3000, Notification.Position.MIDDLE);
-                } else if (password.trim().isEmpty()) {
+                } else {
                     Notification.show("La contraseña no puede estar vacía", 3000, Notification.Position.MIDDLE);
                 }
-                return; // No enviar solicitud si hay campos vacíos
+                return;
             }
 
-            realizarLogin(email, password); // Llamar a la función si los campos no están vacíos
+            realizarLogin(email, password);
         });
 
         add(new H1("Reclaimers - Iniciar Sesión"), emailField, passwordField, loginButton, volverButton);
@@ -52,26 +53,21 @@ public class VistaLogin extends VerticalLayout {
     }
 
     private void realizarLogin(String email, String password) {
-        Map<String, Object> response = servicioUsuario.login(email, password);
+        Usuario usuario = servicioUsuario.loginYObtenerUsuario(email, password);
 
-        // Verificar el campo "status"
-        String status = (String) response.get("status");
-        String message = (String) response.get("message");
-
-        if ("error".equals(status)) {
-            Notification.show(message, 3000, Notification.Position.MIDDLE);
-            return; // No continuar si hay un error
+        if (usuario == null) {
+            Notification.show("Correo o contraseña incorrectos o error de sesión", 3000, Notification.Position.MIDDLE);
+            return;
         }
 
-        // Si el login es exitoso, redirigir según tipo de usuario
-        if (response.containsKey("tipoUsuario")) {
-            String tipoUsuario = (String) response.get("tipoUsuario");
-            if ("LUDOPATA".equals(tipoUsuario)) {
-                getUI().ifPresent(ui -> ui.navigate("dashboard-ludopata"));
-            } else if ("PROFESIONAL".equals(tipoUsuario)) {
-                getUI().ifPresent(ui -> ui.navigate("dashboard-profesional"));
-            }
+        // Guardar en sesión
+        UsuarioSesion.setUsuario(usuario);
+
+        // Redirigir según tipo
+        if (usuario.getTipoUsuario() == Usuario.TipoUsuario.LUDOPATA) {
+            UI.getCurrent().navigate("dashboard-ludopata");
+        } else if (usuario.getTipoUsuario() == Usuario.TipoUsuario.PROFESIONAL) {
+            UI.getCurrent().navigate("dashboard-profesional");
         }
     }
 }
-
