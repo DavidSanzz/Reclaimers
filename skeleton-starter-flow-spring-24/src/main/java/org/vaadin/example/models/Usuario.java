@@ -1,12 +1,17 @@
 package org.vaadin.example.models;
 
 public class Usuario {
+
+    private Long id;
     private String nombre;
     private String email;
     private String contrasena;
     private TipoUsuario tipoUsuario;
 
-    // Constructor con cuatro parámetros (para el registro)
+    // Constructor vacío requerido por Jackson
+    public Usuario() {}
+
+    // Constructor para registro
     public Usuario(String nombre, String email, String contrasena, TipoUsuario tipoUsuario) {
         this.nombre = nombre;
         this.email = email;
@@ -14,13 +19,22 @@ public class Usuario {
         this.tipoUsuario = tipoUsuario;
     }
 
-    // Constructor con dos parámetros (para login)
+    // Constructor para login
     public Usuario(String email, String contrasena) {
         this.email = email;
         this.contrasena = contrasena;
     }
 
-    // Getters y Setters
+    // Getters y setters
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getNombre() {
         return nombre;
     }
@@ -53,7 +67,6 @@ public class Usuario {
         this.tipoUsuario = tipoUsuario;
     }
 
-    // Enum TipoUsuario
     public enum TipoUsuario {
         LUDOPATA,
         PROFESIONAL
