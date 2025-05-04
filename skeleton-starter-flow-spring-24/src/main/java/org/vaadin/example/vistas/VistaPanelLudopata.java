@@ -3,15 +3,16 @@ package org.vaadin.example.vistas;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.component.notification.Notification;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.example.ServicioUsuario;
 import org.vaadin.example.UsuarioSesion;
@@ -69,11 +70,16 @@ public class VistaPanelLudopata extends VerticalLayout {
         add(seguimientoComentario, seguimientoProgreso, saveButton);
 
         // ---- TABLA DE SEGUIMIENTOS ----
-        gridSeguimientos = new Grid<>(SeguimientoProgreso.class);
-        gridSeguimientos.setColumns("comentario", "progreso");
+        gridSeguimientos = new Grid<>(SeguimientoProgreso.class, false);
+        gridSeguimientos.addColumn(SeguimientoProgreso::getComentario).setHeader("Comentario").setAutoWidth(true).setFlexGrow(0);
+        gridSeguimientos.addColumn(SeguimientoProgreso::getProgreso).setHeader("Progreso").setAutoWidth(true).setFlexGrow(0);
         gridSeguimientos.setAllRowsVisible(true);
-        gridSeguimientos.setWidth("80%");
-        add(new H2("Seguimientos anteriores"), gridSeguimientos);
+        gridSeguimientos.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
+
+        VerticalLayout tablaContainer = new VerticalLayout(new H2("Seguimientos anteriores"), gridSeguimientos);
+        tablaContainer.setWidthFull();
+        tablaContainer.setAlignItems(Alignment.CENTER);
+        add(tablaContainer);
 
         cargarSeguimientos();
 
@@ -88,7 +94,6 @@ public class VistaPanelLudopata extends VerticalLayout {
         nivelAutoevaluacionCombo.setItems(Usuario.NivelAutoevaluacion.values());
         TextArea objetivoField = new TextArea("Objetivo personal");
 
-        // Precargar datos si existen
         if (usuarioActual.getTipoJuegoFavorito() != null) tipoJuegoField.setValue(usuarioActual.getTipoJuegoFavorito());
         if (usuarioActual.getHorarioFrecuenteJuego() != null) horarioJuegoField.setValue(usuarioActual.getHorarioFrecuenteJuego());
         if (usuarioActual.getTiempoSemanalJuego() != null) tiempoSemanalField.setValue(usuarioActual.getTiempoSemanalJuego().toString());
@@ -130,8 +135,6 @@ public class VistaPanelLudopata extends VerticalLayout {
             String respuesta = servicioUsuario.actualizarInformacionAdicional(usuarioActual.getId(), datosActualizados);
             Notification.show(respuesta, 3000, Notification.Position.MIDDLE);
 
-            // Actualizar el objeto usuario en sesión tras los cambios
-            // Reflejar localmente los cambios en el objeto de sesión
             if (datosActualizados.getTipoJuegoFavorito() != null)
                 usuarioActual.setTipoJuegoFavorito(datosActualizados.getTipoJuegoFavorito());
             if (datosActualizados.getHorarioFrecuenteJuego() != null)
@@ -146,11 +149,31 @@ public class VistaPanelLudopata extends VerticalLayout {
                 usuarioActual.setObjetivoPersonal(datosActualizados.getObjetivoPersonal());
 
             UsuarioSesion.setUsuario(usuarioActual);
-
         });
 
         add(tipoJuegoField, horarioJuegoField, tiempoSemanalField, dineroGastadoField,
                 nivelAutoevaluacionCombo, objetivoField, actualizarInfoButton);
+
+        // ---- SECCIÓN: ENVÍO DE INFORME ----
+        add(new H2("Enviar informe en PDF por correo"));
+
+        TextField correoDestino = new TextField("Correo electrónico de destino");
+        correoDestino.setPlaceholder("ejemplo@correo.com");
+        Button botonEnviarInforme = new Button("Enviar informe PDF");
+
+        botonEnviarInforme.addClickListener(e -> {
+            String correo = correoDestino.getValue().trim();
+
+            if (correo.isEmpty() || !correo.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+                Notification.show("Introduce un correo válido", 3000, Notification.Position.MIDDLE);
+                return;
+            }
+
+            String resultado = servicioUsuario.enviarInformePdf(usuarioActual.getId(), correo);
+            Notification.show(resultado, 4000, Notification.Position.MIDDLE);
+        });
+
+        add(correoDestino, botonEnviarInforme);
     }
 
     private void cargarSeguimientos() {
