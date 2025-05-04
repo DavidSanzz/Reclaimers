@@ -10,6 +10,10 @@ import org.vaadin.example.models.SeguimientoProgreso;
 
 import java.util.*;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import org.springframework.web.client.HttpClientErrorException;
+
 @Service
 public class ServicioUsuario {
 
@@ -23,10 +27,8 @@ public class ServicioUsuario {
         this.restTemplate = restTemplate;
     }
 
-    // NUEVO: Método de login que devuelve directamente el Usuario
     public Usuario loginYObtenerUsuario(String email, String contrasena) {
         String url = BASE_URL + "/login";
-
         Usuario loginUsuario = new Usuario(email, contrasena);
 
         try {
@@ -41,7 +43,6 @@ public class ServicioUsuario {
         return null;
     }
 
-    // Método anterior de login con mapa (por si aún lo usas en otra parte)
     public Map<String, Object> login(String email, String contrasena) {
         String url = BASE_URL + "/login";
         Usuario usuario = new Usuario(email, contrasena);
@@ -119,7 +120,6 @@ public class ServicioUsuario {
         return new ArrayList<>();
     }
 
-    // NUEVO: Método para actualizar los campos adicionales del usuario
     public String actualizarInformacionAdicional(Long id, Usuario usuario) {
         String url = BASE_URL + "/" + id + "/informacion-adicional";
 
@@ -129,6 +129,21 @@ public class ServicioUsuario {
         } catch (Exception e) {
             e.printStackTrace();
             return "Error al actualizar la información";
+        }
+    }
+
+    // NUEVO MÉTODO: Enviar informe PDF al correo indicado
+    public String enviarInformePdf(Long usuarioId, String correoDestino) {
+        try {
+            String correoCodificado = URLEncoder.encode(correoDestino, StandardCharsets.UTF_8.toString());
+            String url = BASE_URL + "/" + usuarioId + "/enviar-pdf?correoDestino=" + correoCodificado;
+
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            return "No se pudo enviar el informe: " + e.getStatusCode() + " - " + e.getResponseBodyAsString();
+        } catch (Exception e) {
+            return "Error inesperado al enviar el informe: " + e.getMessage();
         }
     }
 }
