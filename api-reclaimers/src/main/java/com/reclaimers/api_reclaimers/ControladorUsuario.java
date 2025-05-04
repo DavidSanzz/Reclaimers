@@ -2,6 +2,8 @@ package com.reclaimers.api_reclaimers;
 
 import com.reclaimers.api_reclaimers.models.Usuario;
 import com.reclaimers.api_reclaimers.repositorios.RepositorioUsuario;
+import com.reclaimers.api_reclaimers.repositorios.RepositorioSeguimientoProgreso;
+import com.reclaimers.api_reclaimers.models.SeguimientoProgreso;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,16 +16,27 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
 @RestController
 @RequestMapping("/usuarios")
 public class ControladorUsuario {
 
     private final RepositorioUsuario repositorioUsuario;
+    private final RepositorioSeguimientoProgreso repositorioSeguimientoProgreso;
 
     @Autowired
-    public ControladorUsuario(RepositorioUsuario repositorioUsuario) {
+    public ControladorUsuario(RepositorioUsuario repositorioUsuario,
+                              RepositorioSeguimientoProgreso repositorioSeguimientoProgreso) {
         this.repositorioUsuario = repositorioUsuario;
+        this.repositorioSeguimientoProgreso = repositorioSeguimientoProgreso;
     }
+
+    @Autowired
+    private ServicioEmail servicioEmail;
 
     // Obtener todos los usuarios (uso general)
     @GetMapping
@@ -148,6 +161,61 @@ public class ControladorUsuario {
         repositorioUsuario.save(usuario);
 
         return ResponseEntity.ok("Información adicional del usuario actualizada correctamente");
+    }
+
+    @GetMapping("/{id}/generar-pdf")
+    public ResponseEntity<byte[]> generarPdf(@PathVariable Long id) {
+        Optional<Usuario> usuarioOpt = repositorioUsuario.findById(id);
+
+        if (usuarioOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        Usuario usuario = usuarioOpt.get();
+
+        // Obtener seguimientos desde el repositorio, no desde el usuario
+        List<SeguimientoProgreso> seguimientos = repositorioSeguimientoProgreso.findByUsuarioId(id);
+
+        try {
+            byte[] pdfBytes = GeneradorPdfUsuario.generarPdf(usuario, seguimientos);
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=usuario_" + id + ".pdf")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfBytes);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/{id}/enviar-pdf")
+    public ResponseEntity<String> enviarPdfPorCorreo(
+            @PathVariable Long id,
+            @RequestParam String correoDestino) {
+
+        Optional<Usuario> usuarioOpt = repositorioUsuario.findById(id);
+
+        if (usuarioOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+        }
+
+        Usuario usuario = usuarioOpt.get();
+        List<SeguimientoProgreso> seguimientos = repositorioSeguimientoProgreso.findByUsuarioId(id);
+
+        try {
+            // Decodificar el correo si viene con caracteres codificados como %40
+            String correoDecodificado = URLDecoder.decode(correoDestino, StandardCharsets.UTF_8);
+
+            byte[] pdf = GeneradorPdfUsuario.generarPdf(usuario, seguimientos);
+            servicioEmail.enviarPdfPorCorreo(correoDecodificado, pdf, "usuario_" + id + ".pdf");
+
+            return ResponseEntity.ok("PDF enviado correctamente a " + correoDecodificado);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al enviar el PDF");
+        }
     }
 
 }
