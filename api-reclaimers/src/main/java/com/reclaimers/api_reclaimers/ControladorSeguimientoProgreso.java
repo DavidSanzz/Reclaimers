@@ -57,4 +57,9 @@ public class ControladorSeguimientoProgreso {
         return repositorioSeguimientoProgreso.findByUsuarioId(id);
     }
 
+    @GetMapping("/todos")
+    public List<SeguimientoProgreso> obtenerTodosLosSeguimientos() {
+        return repositorioSeguimientoProgreso.findAll();
+    }
+
 }

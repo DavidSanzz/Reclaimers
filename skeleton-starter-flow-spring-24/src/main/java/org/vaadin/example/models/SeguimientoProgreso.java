@@ -1,11 +1,14 @@
 package org.vaadin.example.models;
 
+import java.time.LocalDateTime;
+
 public class SeguimientoProgreso {
 
     private Long id;
     private String comentario;
     private String progreso;
-    private Usuario usuario;  // Este sería el usuario que está registrando el seguimiento
+    private LocalDateTime fecha;  // Nuevo campo
+    private Usuario usuario;      // Usuario que registró el seguimiento
 
     // Constructor sin parámetros
     public SeguimientoProgreso() {}
@@ -42,6 +45,15 @@ public class SeguimientoProgreso {
 
     public void setProgreso(String progreso) {
         this.progreso = progreso;
+    }
+
+    // Getter y Setter para fecha
+    public LocalDateTime getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(LocalDateTime fecha) {
+        this.fecha = fecha;
     }
 
     // Getter y Setter para usuario
