@@ -1,11 +1,7 @@
 package com.reclaimers.api_reclaimers.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 public class SeguimientoProgreso {
@@ -16,6 +12,8 @@ public class SeguimientoProgreso {
 
     private String comentario;
     private String progreso;
+
+    private LocalDateTime fecha; // NUEVO CAMPO
 
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
@@ -31,39 +29,25 @@ public class SeguimientoProgreso {
         this.usuario = usuario;
     }
 
-    // Getter y Setter para id
-    public Long getId() {
-        return id;
+    @PrePersist
+    protected void onCreate() {
+        this.fecha = LocalDateTime.now(); // ASIGNACIÓN AUTOMÁTICA
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    // Getters y Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    // Getter y Setter para comentario
-    public String getComentario() {
-        return comentario;
-    }
+    public String getComentario() { return comentario; }
+    public void setComentario(String comentario) { this.comentario = comentario; }
 
-    public void setComentario(String comentario) {
-        this.comentario = comentario;
-    }
+    public String getProgreso() { return progreso; }
+    public void setProgreso(String progreso) { this.progreso = progreso; }
 
-    // Getter y Setter para progreso
-    public String getProgreso() {
-        return progreso;
-    }
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
 
-    public void setProgreso(String progreso) {
-        this.progreso = progreso;
-    }
-
-    // Getter y Setter para usuario
-    public Usuario getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
+    public LocalDateTime getFecha() { return fecha; }
+    public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }
 }
+
