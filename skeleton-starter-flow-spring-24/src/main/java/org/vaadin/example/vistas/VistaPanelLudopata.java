@@ -38,7 +38,7 @@ public class VistaPanelLudopata extends VerticalLayout {
         this.servicioUsuario = servicioUsuario;
         this.usuarioActual = UsuarioSesion.getUsuario();
 
-        addClassName("vista-ludopata-fondo");
+        addClassName("vista-paneles");
 
         setAlignItems(Alignment.CENTER);
         setWidthFull();
