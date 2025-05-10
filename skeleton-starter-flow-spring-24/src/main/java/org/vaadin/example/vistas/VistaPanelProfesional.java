@@ -3,7 +3,10 @@ package org.vaadin.example.vistas;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+<<<<<<< HEAD
 import com.vaadin.flow.component.grid.GridVariant;
+=======
+>>>>>>> 894d75a (Implementada funcionalidad para profesional)
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -11,10 +14,15 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+<<<<<<< HEAD
 import com.vaadin.flow.component.dependency.CssImport;
 
 import org.springframework.web.client.RestTemplate;
 import org.vaadin.example.UsuarioSesion;
+=======
+
+import org.springframework.web.client.RestTemplate;
+>>>>>>> 894d75a (Implementada funcionalidad para profesional)
 import org.vaadin.example.models.Recurso;
 import org.vaadin.example.models.SeguimientoProgreso;
 import org.vaadin.example.models.Usuario;
@@ -68,6 +76,7 @@ public class VistaPanelProfesional extends VerticalLayout {
         configurarGrid();
         cargarSeguimientos();
 
+<<<<<<< HEAD
         layoutSeguimientos.add(grid);
         add(layoutSeguimientos);
 
@@ -98,6 +107,10 @@ public class VistaPanelProfesional extends VerticalLayout {
 
         add(dialogoConfirmacion, cerrarSesion);
 
+=======
+        add(subtitulo, grid);
+        mostrarFormularioSubidaRecurso();
+>>>>>>> 894d75a (Implementada funcionalidad para profesional)
     }
 
     private void configurarGrid() {
@@ -119,9 +132,14 @@ public class VistaPanelProfesional extends VerticalLayout {
             }
         }).setHeader("Fecha");
 
+<<<<<<< HEAD
         grid.setAllRowsVisible(true);
         grid.setWidthFull();
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT);
+=======
+        grid.setHeight("275px");
+        grid.setWidthFull();
+>>>>>>> 894d75a (Implementada funcionalidad para profesional)
     }
 
     private void cargarSeguimientos() {
@@ -165,9 +183,12 @@ public class VistaPanelProfesional extends VerticalLayout {
     }
 
     private void mostrarFormularioSubidaRecurso() {
+<<<<<<< HEAD
         VerticalLayout formularioLayout = new VerticalLayout();
         formularioLayout.addClassName("seccion");
 
+=======
+>>>>>>> 894d75a (Implementada funcionalidad para profesional)
         H2 tituloFormulario = new H2("Publicar nuevo recurso educativo");
 
         TextField campoTitulo = new TextField("Título");
@@ -175,6 +196,7 @@ public class VistaPanelProfesional extends VerticalLayout {
         TextField campoTipo = new TextField("Tipo (PDF, artículo, video...)");
         TextField campoEnlace = new TextField("Enlace");
 
+<<<<<<< HEAD
         campoTitulo.setWidth("400px");
         campoDescripcion.setWidth("400px");
         campoTipo.setWidth("400px");
@@ -182,6 +204,15 @@ public class VistaPanelProfesional extends VerticalLayout {
 
         Button botonPublicar = new Button("Publicar recurso");
         botonPublicar.addClassName("boton-principal");
+=======
+        // Tamano de los campos/componentes
+        campoTitulo.setWidthFull();
+        campoDescripcion.setWidthFull();
+        campoTipo.setWidthFull();
+        campoEnlace.setWidthFull();
+
+        Button botonPublicar = new Button("Publicar recurso");
+>>>>>>> 894d75a (Implementada funcionalidad para profesional)
 
         botonPublicar.addClickListener(e -> {
             if (campoTitulo.isEmpty() || campoEnlace.isEmpty()) {
@@ -196,12 +227,20 @@ public class VistaPanelProfesional extends VerticalLayout {
             recurso.setEnlace(campoEnlace.getValue());
 
             Usuario profesional = new Usuario();
+<<<<<<< HEAD
             profesional.setId(usuarioActual.getId());
+=======
+            profesional.setId(2L); // Reemplazar por el ID real del profesional logueado
+>>>>>>> 894d75a (Implementada funcionalidad para profesional)
             recurso.setUsuarioProfesional(profesional);
 
             try {
                 RestTemplate restTemplate = new RestTemplate();
+<<<<<<< HEAD
                 restTemplate.postForObject("https://reset-app-q6h3.onrender.com/recursos", recurso, Recurso.class);
+=======
+                restTemplate.postForObject("http://localhost:8081/recursos", recurso, Recurso.class);
+>>>>>>> 894d75a (Implementada funcionalidad para profesional)
 
                 Notification notification = Notification.show("Recurso publicado correctamente");
                 notification.setPosition(Notification.Position.MIDDLE);
@@ -217,8 +256,31 @@ public class VistaPanelProfesional extends VerticalLayout {
             }
         });
 
+<<<<<<< HEAD
         formularioLayout.add(tituloFormulario, campoTitulo, campoDescripcion, campoTipo, campoEnlace, botonPublicar);
         add(formularioLayout);
+=======
+        VerticalLayout formulario = new VerticalLayout(
+                tituloFormulario, campoTitulo, campoDescripcion, campoTipo, campoEnlace, botonPublicar
+        );
+        formulario.setSpacing(true);
+        formulario.setPadding(true);
+        formulario.setAlignItems(Alignment.CENTER); // Centramos los elementos dentro del recuadro
+        formulario.setWidth("50%");
+        formulario.getStyle()
+                .set("border", "1px solid lightgray")
+                .set("padding", "1rem")
+                .set("border-radius", "8px")
+                .set("margin-top", "2rem");
+
+        Div contenedorFormulario = new Div(formulario);
+        contenedorFormulario.getStyle()
+                .set("display", "flex")
+                .set("justify-content", "center")
+                .set("width", "100%");
+
+        add(contenedorFormulario);
+>>>>>>> 894d75a (Implementada funcionalidad para profesional)
     }
 
     private String valorSeguro(Object valor) {
