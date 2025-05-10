@@ -1,20 +1,20 @@
 package org.vaadin.example.vistas;
 
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+
+import org.springframework.web.client.RestTemplate;
+import org.vaadin.example.models.Recurso;
 import org.vaadin.example.models.SeguimientoProgreso;
 import org.vaadin.example.models.Usuario;
-import org.springframework.web.client.RestTemplate;
-
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.button.Button;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -39,6 +39,7 @@ public class VistaPanelProfesional extends VerticalLayout {
         cargarSeguimientos();
 
         add(subtitulo, grid);
+        mostrarFormularioSubidaRecurso();
     }
 
     private void configurarGrid() {
@@ -59,10 +60,10 @@ public class VistaPanelProfesional extends VerticalLayout {
                 return "Sin fecha";
             }
         }).setHeader("Fecha");
-        grid.setHeight("275px");
-        grid.setWidthFull();              // Ancho completo
-    }
 
+        grid.setHeight("275px");
+        grid.setWidthFull();
+    }
 
     private void cargarSeguimientos() {
         try {
@@ -71,7 +72,6 @@ public class VistaPanelProfesional extends VerticalLayout {
             SeguimientoProgreso[] datos = restTemplate.getForObject(url, SeguimientoProgreso[].class);
             grid.setItems(Arrays.asList(datos));
 
-            // Añadimos el listener después de cargar los datos
             grid.addItemClickListener(event -> {
                 SeguimientoProgreso seguimientoSeleccionado = event.getItem();
                 mostrarInformacionPaciente(seguimientoSeleccionado);
@@ -81,7 +81,6 @@ public class VistaPanelProfesional extends VerticalLayout {
             Notification.show("Error al cargar seguimientos: " + e.getMessage(), 5000, Notification.Position.MIDDLE);
         }
     }
-
 
     private void mostrarInformacionPaciente(SeguimientoProgreso seguimiento) {
         Usuario usuario = seguimiento.getUsuario();
@@ -106,8 +105,79 @@ public class VistaPanelProfesional extends VerticalLayout {
         dialogo.open();
     }
 
+    private void mostrarFormularioSubidaRecurso() {
+        H2 tituloFormulario = new H2("Publicar nuevo recurso educativo");
+
+        TextField campoTitulo = new TextField("Título");
+        TextArea campoDescripcion = new TextArea("Descripción");
+        TextField campoTipo = new TextField("Tipo (PDF, artículo, video...)");
+        TextField campoEnlace = new TextField("Enlace");
+
+        // Tamano de los campos/componentes
+        campoTitulo.setWidthFull();
+        campoDescripcion.setWidthFull();
+        campoTipo.setWidthFull();
+        campoEnlace.setWidthFull();
+
+        Button botonPublicar = new Button("Publicar recurso");
+
+        botonPublicar.addClickListener(e -> {
+            if (campoTitulo.isEmpty() || campoEnlace.isEmpty()) {
+                Notification.show("El título y el enlace son obligatorios.", 3000, Notification.Position.MIDDLE);
+                return;
+            }
+
+            Recurso recurso = new Recurso();
+            recurso.setTitulo(campoTitulo.getValue());
+            recurso.setDescripcion(campoDescripcion.getValue());
+            recurso.setTipo(campoTipo.getValue());
+            recurso.setEnlace(campoEnlace.getValue());
+
+            Usuario profesional = new Usuario();
+            profesional.setId(2L); // Reemplazar por el ID real del profesional logueado
+            recurso.setUsuarioProfesional(profesional);
+
+            try {
+                RestTemplate restTemplate = new RestTemplate();
+                restTemplate.postForObject("http://localhost:8081/recursos", recurso, Recurso.class);
+
+                Notification notification = Notification.show("Recurso publicado correctamente");
+                notification.setPosition(Notification.Position.MIDDLE);
+                notification.setDuration(3000);
+
+                campoTitulo.clear();
+                campoDescripcion.clear();
+                campoTipo.clear();
+                campoEnlace.clear();
+
+            } catch (Exception ex) {
+                Notification.show("Error al publicar el recurso.", 5000, Notification.Position.MIDDLE);
+            }
+        });
+
+        VerticalLayout formulario = new VerticalLayout(
+                tituloFormulario, campoTitulo, campoDescripcion, campoTipo, campoEnlace, botonPublicar
+        );
+        formulario.setSpacing(true);
+        formulario.setPadding(true);
+        formulario.setAlignItems(Alignment.CENTER); // Centramos los elementos dentro del recuadro
+        formulario.setWidth("50%");
+        formulario.getStyle()
+                .set("border", "1px solid lightgray")
+                .set("padding", "1rem")
+                .set("border-radius", "8px")
+                .set("margin-top", "2rem");
+
+        Div contenedorFormulario = new Div(formulario);
+        contenedorFormulario.getStyle()
+                .set("display", "flex")
+                .set("justify-content", "center")
+                .set("width", "100%");
+
+        add(contenedorFormulario);
+    }
+
     private String valorSeguro(Object valor) {
         return valor != null ? valor.toString() : "No especificado";
     }
-
 }
