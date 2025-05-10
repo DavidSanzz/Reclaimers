@@ -261,6 +261,15 @@ public class VistaPanelLudopata extends VerticalLayout {
 
     private void cargarSeguimientos() {
         List<SeguimientoProgreso> seguimientos = servicioUsuario.obtenerSeguimientosPorUsuario(usuarioActual.getId());
+
+        // Ordenar por fecha descendente (más reciente primero)
+        seguimientos.sort((s1, s2) -> {
+            if (s1.getFecha() == null) return 1;
+            if (s2.getFecha() == null) return -1;
+            return s2.getFecha().compareTo(s1.getFecha());
+        });
+
         gridSeguimientos.setItems(seguimientos);
     }
+
 }
