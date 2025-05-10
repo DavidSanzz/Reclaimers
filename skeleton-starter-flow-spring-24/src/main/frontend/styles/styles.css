@@ -1,0 +1,102 @@
+/* Fondo general: se aplica al layout principal, no al body */
+.vista-paneles {
+    background-color: #f4f6f8;
+    width: 100%;
+    padding-bottom: 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Estilo base para toda la app */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: white; /* limpio y neutral */
+}
+
+/* Secciones estilo tarjeta */
+.seccion {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    margin: 2rem auto;
+    max-width: 800px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Botón principal */
+.boton-principal {
+    background-color: #005fa3;
+    color: white;
+    border: none;
+    padding: 0.5rem 1.25rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.boton-principal:hover {
+    background-color: #004b82;
+}
+
+/* Campos de texto y formularios */
+input[type="text"],
+textarea,
+.v-text-field,
+.v-combo-box {
+    max-width: 400px;
+    width: 100%;
+}
+
+/* Títulos */
+h1, h2 {
+    color: #333;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+/* Separador sutil */
+hr {
+    border: 0;
+    border-top: 1px solid #e0e0e0;
+    margin: 2rem 0;
+}
+
+/* Ajustes para el grid de recursos y seguimientos */
+.v-grid {
+    max-width: 800px;
+    width: 100%;
+}
+
+.vista-inicio {
+    background-color: #f4f6f8;
+    min-height: 100vh;
+    padding: 3rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.boton-principal {
+    background-color: #005fa3;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    margin-top: 1rem;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.boton-principal:hover {
+    background-color: #004b82;
+}
+
