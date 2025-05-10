@@ -3,6 +3,7 @@ package org.vaadin.example.vistas;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -10,8 +11,10 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.component.dependency.CssImport;
 
 import org.springframework.web.client.RestTemplate;
+import org.vaadin.example.UsuarioSesion;
 import org.vaadin.example.models.Recurso;
 import org.vaadin.example.models.SeguimientoProgreso;
 import org.vaadin.example.models.Usuario;
@@ -19,26 +22,46 @@ import org.vaadin.example.models.Usuario;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 
+@CssImport("./styles/styles.css")
 @Route("dashboard-profesional")
 @PageTitle("Dashboard Profesional | Reclaimers")
 public class VistaPanelProfesional extends VerticalLayout {
 
     private Grid<SeguimientoProgreso> grid = new Grid<>(SeguimientoProgreso.class);
+    private Usuario usuarioActual;
 
     public VistaPanelProfesional() {
+        this.usuarioActual = UsuarioSesion.getUsuario();
+
+        addClassName("vista-paneles");
         setAlignItems(Alignment.CENTER);
-        setPadding(true);
         setSpacing(true);
+        setPadding(true);
+        setWidthFull();
 
-        add(new H1("Bienvenido al Dashboard de Profesional"));
+        if (usuarioActual == null) {
+            Notification.show("No se pudo obtener la información del usuario", 3000, Notification.Position.MIDDLE);
+            return;
+        }
 
-        H2 subtitulo = new H2("Seguimientos de pacientes");
-        subtitulo.getStyle().set("margin-top", "1rem");
+        // Bienvenida personalizada
+        VerticalLayout bienvenida = new VerticalLayout(
+                new H1("Panel del Profesional"),
+                new H2("Bienvenido, " + usuarioActual.getNombre())
+        );
+        bienvenida.addClassName("seccion");
+        add(bienvenida);
+
+        VerticalLayout layoutSeguimientos = new VerticalLayout();
+        layoutSeguimientos.addClassName("seccion");
+        layoutSeguimientos.add(new H2("Seguimientos de pacientes"));
 
         configurarGrid();
         cargarSeguimientos();
 
-        add(subtitulo, grid);
+        layoutSeguimientos.add(grid);
+        add(layoutSeguimientos);
+
         mostrarFormularioSubidaRecurso();
     }
 
@@ -61,8 +84,9 @@ public class VistaPanelProfesional extends VerticalLayout {
             }
         }).setHeader("Fecha");
 
-        grid.setHeight("275px");
+        grid.setAllRowsVisible(true);
         grid.setWidthFull();
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES, GridVariant.LUMO_WRAP_CELL_CONTENT);
     }
 
     private void cargarSeguimientos() {
@@ -106,6 +130,9 @@ public class VistaPanelProfesional extends VerticalLayout {
     }
 
     private void mostrarFormularioSubidaRecurso() {
+        VerticalLayout formularioLayout = new VerticalLayout();
+        formularioLayout.addClassName("seccion");
+
         H2 tituloFormulario = new H2("Publicar nuevo recurso educativo");
 
         TextField campoTitulo = new TextField("Título");
@@ -113,13 +140,13 @@ public class VistaPanelProfesional extends VerticalLayout {
         TextField campoTipo = new TextField("Tipo (PDF, artículo, video...)");
         TextField campoEnlace = new TextField("Enlace");
 
-        // Tamano de los campos/componentes
-        campoTitulo.setWidthFull();
-        campoDescripcion.setWidthFull();
-        campoTipo.setWidthFull();
-        campoEnlace.setWidthFull();
+        campoTitulo.setWidth("400px");
+        campoDescripcion.setWidth("400px");
+        campoTipo.setWidth("400px");
+        campoEnlace.setWidth("400px");
 
         Button botonPublicar = new Button("Publicar recurso");
+        botonPublicar.addClassName("boton-principal");
 
         botonPublicar.addClickListener(e -> {
             if (campoTitulo.isEmpty() || campoEnlace.isEmpty()) {
@@ -134,7 +161,7 @@ public class VistaPanelProfesional extends VerticalLayout {
             recurso.setEnlace(campoEnlace.getValue());
 
             Usuario profesional = new Usuario();
-            profesional.setId(2L); // Reemplazar por el ID real del profesional logueado
+            profesional.setId(usuarioActual.getId());
             recurso.setUsuarioProfesional(profesional);
 
             try {
@@ -155,26 +182,8 @@ public class VistaPanelProfesional extends VerticalLayout {
             }
         });
 
-        VerticalLayout formulario = new VerticalLayout(
-                tituloFormulario, campoTitulo, campoDescripcion, campoTipo, campoEnlace, botonPublicar
-        );
-        formulario.setSpacing(true);
-        formulario.setPadding(true);
-        formulario.setAlignItems(Alignment.CENTER); // Centramos los elementos dentro del recuadro
-        formulario.setWidth("50%");
-        formulario.getStyle()
-                .set("border", "1px solid lightgray")
-                .set("padding", "1rem")
-                .set("border-radius", "8px")
-                .set("margin-top", "2rem");
-
-        Div contenedorFormulario = new Div(formulario);
-        contenedorFormulario.getStyle()
-                .set("display", "flex")
-                .set("justify-content", "center")
-                .set("width", "100%");
-
-        add(contenedorFormulario);
+        formularioLayout.add(tituloFormulario, campoTitulo, campoDescripcion, campoTipo, campoEnlace, botonPublicar);
+        add(formularioLayout);
     }
 
     private String valorSeguro(Object valor) {
