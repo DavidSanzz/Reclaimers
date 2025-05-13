@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.example.models.Usuario;
 import org.vaadin.example.models.SeguimientoProgreso;
+import org.vaadin.example.models.Mensaje;
 
 import java.util.*;
 
@@ -19,6 +20,7 @@ public class ServicioUsuario {
 
     private static final String BASE_URL = "http://localhost:8081/usuarios";
     private static final String BASE_URL_SEGUIMIENTO = "http://localhost:8081/seguimiento";
+    private static final String BASE_URL_MENSAJES = "http://localhost:8081/mensajes";
 
     private final RestTemplate restTemplate;
 
@@ -144,6 +146,51 @@ public class ServicioUsuario {
             return "No se pudo enviar el informe: " + e.getStatusCode() + " - " + e.getResponseBodyAsString();
         } catch (Exception e) {
             return "Error inesperado al enviar el informe: " + e.getMessage();
+        }
+    }
+
+    // NUEVOS MÉTODOS PARA MENSAJES
+
+    public List<Mensaje> obtenerMensajesDeUsuario(Long usuarioId) {
+        String url = BASE_URL_MENSAJES + "/" + usuarioId;
+        try {
+            Mensaje[] mensajes = restTemplate.getForObject(url, Mensaje[].class);
+            return Arrays.asList(mensajes);
+        } catch (Exception e) {
+            System.err.println("Error al obtener mensajes: " + e.getMessage());
+            return List.of();
+        }
+    }
+
+    public String enviarMensaje(Mensaje mensaje) {
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(BASE_URL_MENSAJES, mensaje, String.class);
+            return response.getBody();
+        } catch (Exception e) {
+            System.err.println("Error al enviar mensaje: " + e.getMessage());
+            return "Error al enviar el mensaje";
+        }
+    }
+
+    public List<Usuario> obtenerProfesionales() {
+        try {
+            String url = "http://localhost:8081/usuarios/profesionales";
+            Usuario[] respuesta = restTemplate.getForObject(url, Usuario[].class);
+            return Arrays.asList(respuesta);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    public List<Usuario> obtenerPacientes() {
+        try {
+            String url = "http://localhost:8081/usuarios/pacientes";
+            Usuario[] respuesta = restTemplate.getForObject(url, Usuario[].class);
+            return Arrays.asList(respuesta);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
         }
     }
 }

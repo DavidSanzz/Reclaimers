@@ -218,4 +218,14 @@ public class ControladorUsuario {
         }
     }
 
+    @GetMapping("/profesionales")
+    public List<Usuario> listarProfesionales() {
+        return repositorioUsuario.findByTipoUsuario(Usuario.TipoUsuario.PROFESIONAL);
+    }
+
+    @GetMapping("/pacientes")
+    public List<Usuario> listarPacientes() {
+        return repositorioUsuario.findByTipoUsuario(Usuario.TipoUsuario.LUDOPATA);
+    }
+
 }
