@@ -26,6 +26,9 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.html.Paragraph;
 
+import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.checkbox.Checkbox;
+
 import com.vaadin.flow.component.dependency.CssImport;
 @CssImport("./styles/styles.css")
 
@@ -71,28 +74,53 @@ public class VistaPanelLudopata extends VerticalLayout {
         seguimientoComentario.setWidth("400px");
         seguimientoProgreso.setWidth("400px");
 
+        IntegerField campoNivelProgreso = new IntegerField("Nivel de progreso (0-10)");
+        campoNivelProgreso.setMin(0);
+        campoNivelProgreso.setMax(10);
+        campoNivelProgreso.setWidth("400px");
+
+        ComboBox<String> comboEstadoAnimo = new ComboBox<>("Estado de ánimo");
+        comboEstadoAnimo.setItems("MUY_BAJO", "BAJO", "NEUTRO", "ALTO", "MUY_ALTO");
+        comboEstadoAnimo.setWidth("400px");
+
+        Checkbox checkboxRecaida = new Checkbox("¿Has tenido una recaída esta semana?");
+
         Button saveButton = new Button("Guardar Seguimiento");
         saveButton.addClassName("boton-principal");
 
         saveButton.addClickListener(event -> {
             String comentario = seguimientoComentario.getValue();
             String progreso = seguimientoProgreso.getValue();
+
             SeguimientoProgreso seguimiento = new SeguimientoProgreso(comentario, progreso, usuarioActual);
+            seguimiento.setNivelProgreso(campoNivelProgreso.getValue());
+            seguimiento.setEstadoAnimo(comboEstadoAnimo.getValue());
+            seguimiento.setRecaida(checkboxRecaida.getValue());
+
             String response = servicioUsuario.guardarSeguimiento(seguimiento);
             Notification.show(response, 3000, Notification.Position.MIDDLE);
             if (response.contains("correctamente")) {
                 cargarSeguimientos();
                 seguimientoComentario.clear();
                 seguimientoProgreso.clear();
+                campoNivelProgreso.clear();
+                comboEstadoAnimo.clear();
+                checkboxRecaida.setValue(false);
             }
         });
 
         VerticalLayout seguimientoLayout = new VerticalLayout(
                 new H2("Registrar seguimiento semanal"),
-                seguimientoComentario, seguimientoProgreso, saveButton
+                seguimientoComentario,
+                seguimientoProgreso,
+                campoNivelProgreso,
+                comboEstadoAnimo,
+                checkboxRecaida,
+                saveButton
         );
         seguimientoLayout.addClassName("seccion");
         add(seguimientoLayout);
+
 
         // Tabla de seguimientos anteriores
         gridSeguimientos = new Grid<>(SeguimientoProgreso.class, false);
@@ -117,13 +145,30 @@ public class VistaPanelLudopata extends VerticalLayout {
                 .setAutoWidth(true)
                 .setFlexGrow(0);
 
+        gridSeguimientos.addColumn(SeguimientoProgreso::getNivelProgreso)
+                .setHeader("Nivel de progreso")
+                .setAutoWidth(true)
+                .setFlexGrow(0);
+
+        gridSeguimientos.addColumn(SeguimientoProgreso::getEstadoAnimo)
+                .setHeader("Estado de ánimo")
+                .setAutoWidth(true)
+                .setFlexGrow(0);
+
+        gridSeguimientos.addColumn(s -> s.getRecaida() != null && s.getRecaida() ? "Sí" : "No")
+                .setHeader("Recaída")
+                .setAutoWidth(true)
+                .setFlexGrow(0);
+
         gridSeguimientos.setAllRowsVisible(true);
         gridSeguimientos.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_ROW_STRIPES);
 
         VerticalLayout tablaContainer = new VerticalLayout(new H2("Seguimientos anteriores"), gridSeguimientos);
         tablaContainer.addClassName("seccion");
         add(tablaContainer);
+
         cargarSeguimientos();
+
 
         // Información personal
         TextField tipoJuegoField = new TextField("Tipo de juego favorito");
