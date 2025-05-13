@@ -22,6 +22,10 @@ import org.vaadin.example.models.Usuario;
 import java.util.List;
 import java.util.Arrays;
 
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.html.Paragraph;
+
 import com.vaadin.flow.component.dependency.CssImport;
 @CssImport("./styles/styles.css")
 
@@ -49,6 +53,12 @@ public class VistaPanelLudopata extends VerticalLayout {
             Notification.show("No se pudo obtener la información del usuario", 3000, Notification.Position.MIDDLE);
             return;
         }
+
+        // Botón flotante de mensajería
+        Button botonFlotante = new Button("💬");
+        botonFlotante.addClassName("boton-mensajeria-flotante");
+        botonFlotante.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("mensajes-ludopata")));
+        add(botonFlotante);
 
         // Bienvenida
         VerticalLayout bienvenida = new VerticalLayout(new H1("Bienvenido, " + usuarioActual.getNombre()));
@@ -257,6 +267,32 @@ public class VistaPanelLudopata extends VerticalLayout {
         );
         recursosLayout.addClassName("seccion");
         add(recursosLayout);
+
+        // --- Diálogo de confirmación ---
+        Dialog dialogoConfirmacion = new Dialog();
+        dialogoConfirmacion.setHeaderTitle("¿Cerrar sesión?");
+        dialogoConfirmacion.add(new Paragraph("¿Estás seguro de que quieres cerrar sesión?"));
+
+        // Botones del diálogo
+        Button confirmar = new Button("Sí, cerrar", event -> {
+            UsuarioSesion.setUsuario(null);
+            getUI().ifPresent(ui -> ui.navigate("")); // Vista raíz = bienvenida
+            dialogoConfirmacion.close();
+        });
+        confirmar.getStyle().set("background-color", "#c9302c").set("color", "white");
+
+        Button cancelar = new Button("Cancelar", event -> dialogoConfirmacion.close());
+
+        HorizontalLayout botonesDialogo = new HorizontalLayout(cancelar, confirmar);
+        dialogoConfirmacion.getFooter().add(botonesDialogo);
+
+        // --- Botón flotante para cerrar sesión ---
+        Button cerrarSesion = new Button("Cerrar sesión");
+        cerrarSesion.addClassName("boton-cerrar-sesion-flotante");
+        cerrarSesion.addClickListener(e -> dialogoConfirmacion.open());
+
+        add(dialogoConfirmacion, cerrarSesion);
+
     }
 
     private void cargarSeguimientos() {
