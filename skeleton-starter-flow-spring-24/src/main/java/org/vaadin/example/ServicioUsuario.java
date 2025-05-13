@@ -18,9 +18,9 @@ import org.springframework.web.client.HttpClientErrorException;
 @Service
 public class ServicioUsuario {
 
-    private static final String BASE_URL = "http://localhost:8081/usuarios";
-    private static final String BASE_URL_SEGUIMIENTO = "http://localhost:8081/seguimiento";
-    private static final String BASE_URL_MENSAJES = "http://localhost:8081/mensajes";
+    private static final String BASE_URL = "https://reset-app-q6h3.onrender.com/usuarios";
+    private static final String BASE_URL_SEGUIMIENTO = "https://reset-app-q6h3.onrender.com/seguimiento";
+    private static final String BASE_URL_MENSAJES = "https://reset-app-q6h3.onrender.com/mensajes";
 
     private final RestTemplate restTemplate;
 
@@ -185,7 +185,7 @@ public class ServicioUsuario {
 
     public List<Usuario> obtenerPacientes() {
         try {
-            String url = "http://localhost:8081/usuarios/pacientes";
+            String url = "https://reset-app-q6h3.onrender.com/usuarios/profesionales";
             Usuario[] respuesta = restTemplate.getForObject(url, Usuario[].class);
             return Arrays.asList(respuesta);
         } catch (Exception e) {
