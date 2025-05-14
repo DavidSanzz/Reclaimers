@@ -150,7 +150,7 @@ public class VistaMensajesProfesional extends VerticalLayout {
 
         // Botón volver
         Button volverButton = new Button("← Volver al panel");
-        volverButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("dashboard-profesional")));
+        volverButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("panel-profesional")));
         volverButton.addClassName("boton-volver-flotante");
         add(volverButton);
 

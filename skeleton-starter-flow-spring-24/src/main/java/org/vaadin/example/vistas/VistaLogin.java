@@ -83,9 +83,9 @@ public class VistaLogin extends VerticalLayout {
         UsuarioSesion.setUsuario(usuario);
 
         if (usuario.getTipoUsuario() == Usuario.TipoUsuario.LUDOPATA) {
-            UI.getCurrent().navigate("dashboard-ludopata");
+            UI.getCurrent().navigate("mi-espacio");
         } else if (usuario.getTipoUsuario() == Usuario.TipoUsuario.PROFESIONAL) {
-            UI.getCurrent().navigate("dashboard-profesional");
+            UI.getCurrent().navigate("panel-profesional");
         }
     }
 }

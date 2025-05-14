@@ -25,7 +25,7 @@ import java.time.format.DateTimeFormatter;
 import com.vaadin.flow.component.dependency.CssImport;
 
 @CssImport("./styles/styles.css")
-@Route("mensajes-ludopata")
+@Route("mensajes")
 @PageTitle("Mensajes | RESET")
 public class VistaMensajesLudopata extends VerticalLayout {
 
@@ -134,7 +134,7 @@ public class VistaMensajesLudopata extends VerticalLayout {
 
         // === Botón fijo de volver ===
         Button volverButton = new Button("← Volver al panel");
-        volverButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("dashboard-ludopata")));
+        volverButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("mi-espacio")));
         volverButton.addClassName("boton-volver-flotante");
         add(volverButton);
 

@@ -32,8 +32,8 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.CssImport;
 @CssImport("./styles/styles.css")
 
-@Route("dashboard-ludopata")
-@PageTitle("Dashboard Ludópata | Reclaimers")
+@Route("mi-espacio")
+@PageTitle("Mi Espacio | RESET")
 public class VistaPanelLudopata extends VerticalLayout {
 
     private final ServicioUsuario servicioUsuario;
@@ -60,7 +60,7 @@ public class VistaPanelLudopata extends VerticalLayout {
         // Botón flotante de mensajería
         Button botonFlotante = new Button("💬");
         botonFlotante.addClassName("boton-mensajeria-flotante");
-        botonFlotante.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("mensajes-ludopata")));
+        botonFlotante.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("mensajes")));
         add(botonFlotante);
 
         // Bienvenida
@@ -300,7 +300,7 @@ public class VistaPanelLudopata extends VerticalLayout {
 
         try {
             RestTemplate restTemplate = new RestTemplate();
-            Recurso[] recursos = restTemplate.getForObject("http://localhost:8081/recursos", Recurso[].class);
+            Recurso[] recursos = restTemplate.getForObject("https://reset-app-q6h3.onrender.com/recursos", Recurso[].class);
             gridRecursos.setItems(Arrays.asList(recursos));
         } catch (Exception e) {
             Notification.show("Error al cargar recursos educativos: " + e.getMessage(), 5000, Notification.Position.MIDDLE);

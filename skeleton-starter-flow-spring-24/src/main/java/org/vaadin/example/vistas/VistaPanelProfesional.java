@@ -26,8 +26,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.html.Paragraph;
 
 @CssImport("./styles/styles.css")
-@Route("dashboard-profesional")
-@PageTitle("Dashboard Profesional | Reclaimers")
+@Route("panel-profesional")
+@PageTitle("Panel Profesional | RESET")
 public class VistaPanelProfesional extends VerticalLayout {
 
     private Grid<SeguimientoProgreso> grid = new Grid<>(SeguimientoProgreso.class);
@@ -126,7 +126,7 @@ public class VistaPanelProfesional extends VerticalLayout {
 
     private void cargarSeguimientos() {
         try {
-            String url = "http://localhost:8081/seguimiento/todos";
+            String url = "https://reset-app-q6h3.onrender.com/seguimiento/todos";
             RestTemplate restTemplate = new RestTemplate();
             SeguimientoProgreso[] datos = restTemplate.getForObject(url, SeguimientoProgreso[].class);
             grid.setItems(Arrays.asList(datos));
@@ -201,7 +201,7 @@ public class VistaPanelProfesional extends VerticalLayout {
 
             try {
                 RestTemplate restTemplate = new RestTemplate();
-                restTemplate.postForObject("http://localhost:8081/recursos", recurso, Recurso.class);
+                restTemplate.postForObject("https://reset-app-q6h3.onrender.com/recursos", recurso, Recurso.class);
 
                 Notification notification = Notification.show("Recurso publicado correctamente");
                 notification.setPosition(Notification.Position.MIDDLE);

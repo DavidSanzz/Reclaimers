@@ -174,7 +174,7 @@ public class ServicioUsuario {
 
     public List<Usuario> obtenerProfesionales() {
         try {
-            String url = "http://localhost:8081/usuarios/profesionales";
+            String url = "https://reset-app-q6h3.onrender.com/usuarios/profesionales";
             Usuario[] respuesta = restTemplate.getForObject(url, Usuario[].class);
             return Arrays.asList(respuesta);
         } catch (Exception e) {
@@ -185,7 +185,7 @@ public class ServicioUsuario {
 
     public List<Usuario> obtenerPacientes() {
         try {
-            String url = "https://reset-app-q6h3.onrender.com/usuarios/profesionales";
+            String url = "https://reset-app-q6h3.onrender.com/usuarios/pacientes";
             Usuario[] respuesta = restTemplate.getForObject(url, Usuario[].class);
             return Arrays.asList(respuesta);
         } catch (Exception e) {
