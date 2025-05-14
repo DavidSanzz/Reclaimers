@@ -142,11 +142,18 @@ public class GeneradorPdfUsuario {
 
             // Gráfico de recaídas por fecha
             DefaultCategoryDataset datasetRecaidas = new DefaultCategoryDataset();
-            Map<String, Long> recaidasPorFecha = seguimientos.stream()
+            Map<java.time.LocalDate, Long> recaidasPorFecha = seguimientos.stream()
                     .filter(sp -> sp.getFecha() != null && Boolean.TRUE.equals(sp.getRecaida()))
-                    .collect(Collectors.groupingBy(sp -> sp.getFecha().toLocalDate().format(formatoCorto), Collectors.counting()));
+                    .collect(Collectors.groupingBy(sp -> sp.getFecha().toLocalDate(), Collectors.counting()));
 
-            recaidasPorFecha.forEach((fecha, count) -> datasetRecaidas.addValue(count, "Recaídas", fecha));
+            // Ordenar por fecha y luego formatear para el gráfico
+            // reutiliza formatoCorto ya definido arriba
+            recaidasPorFecha.entrySet().stream()
+                    .sorted(Map.Entry.comparingByKey())
+                    .forEach(entry -> {
+                        String fechaFormateada = entry.getKey().format(formatoCorto);
+                        datasetRecaidas.addValue(entry.getValue(), "Recaídas", fechaFormateada);
+                    });
 
             JFreeChart chartRecaidas = ChartFactory.createBarChart(
                     "Recaídas por Fecha",
