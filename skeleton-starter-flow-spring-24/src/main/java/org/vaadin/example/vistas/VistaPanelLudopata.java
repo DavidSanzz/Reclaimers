@@ -287,7 +287,24 @@ public class VistaPanelLudopata extends VerticalLayout {
 
         gridRecursos.addComponentColumn(recurso -> {
                     Button ver = new Button("Ver recurso");
-                    ver.addClickListener(e -> getUI().ifPresent(ui -> ui.getPage().open(recurso.getEnlace())));
+
+                    ver.addClickListener(e -> {
+                        Dialog confirmacion = new Dialog();
+                        confirmacion.setHeaderTitle("¿Abrir recurso externo?");
+                        confirmacion.add(new Paragraph("Se abrirá el recurso en una nueva pestaña. ¿Deseas continuar?"));
+
+                        Button cancelar = new Button("Cancelar", evt -> confirmacion.close());
+                        Button abrir = new Button("Abrir recurso", evt -> {
+                            getUI().ifPresent(ui -> ui.getPage().open(recurso.getEnlace()));
+                            confirmacion.close();
+                        });
+                        abrir.getStyle().set("background-color", "#007bff").set("color", "white");
+
+                        HorizontalLayout botones = new HorizontalLayout(cancelar, abrir);
+                        confirmacion.getFooter().add(botones);
+                        confirmacion.open();
+                    });
+
                     return ver;
                 })
                 .setHeader("Acción")

@@ -32,7 +32,7 @@ public class VistaRegistro extends VerticalLayout {
         TextField nombreField = new TextField("Nombre");
         TextField emailField = new TextField("Email");
         PasswordField passwordField = new PasswordField("Contraseña");
-        TextField passwordProfesionalField = new TextField("Contraseña Profesional (opcional)");
+        PasswordField passwordProfesionalField = new PasswordField("Contraseña Profesional (opcional)");
 
         nombreField.setWidth("400px");
         emailField.setWidth("400px");
@@ -64,16 +64,19 @@ public class VistaRegistro extends VerticalLayout {
                 return;
             }
 
-            boolean esProfesional = contrasenaProfesional.equals("TuContraseñaEspecial");
+            boolean esProfesional = contrasenaProfesional.equals("Profesional4321");
             Usuario usuario = new Usuario(nombre, email, contrasena,
                     esProfesional ? Usuario.TipoUsuario.PROFESIONAL : Usuario.TipoUsuario.LUDOPATA);
 
             String response = servicioUsuario.registrarUsuario(usuario);
-            if (response.contains("La contraseña debe tener al menos 6 caracteres") ||
-                    response.contains("El email no es válido") ||
-                    response.contains("El correo ya está registrado")) {
-                String message = response.split(":")[1].trim();
-                Notification.show(message, 3000, Notification.Position.MIDDLE);
+            if (response.contains("contrasena:") || response.contains("email:") || response.contains("correo ya está registrado")) {
+                String mensajeFormateado = response
+                        .replace("contrasena:", "• Contraseña:")
+                        .replace("email:", "• Email:")
+                        .replace("correo ya está registrado", "• El correo ya está registrado")
+                        .replaceAll("(?<=\\.)\\s*", "\n"); // Si hubiese puntos y espacios, los convierte en saltos de línea
+
+                Notification.show(mensajeFormateado, 5500, Notification.Position.MIDDLE);
             } else {
                 Notification.show("Usuario registrado correctamente", 3000, Notification.Position.MIDDLE);
                 getUI().ifPresent(ui -> ui.navigate("inicio-sesion"));
